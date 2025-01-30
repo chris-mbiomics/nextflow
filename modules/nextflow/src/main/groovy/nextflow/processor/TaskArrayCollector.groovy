@@ -27,6 +27,7 @@ import nextflow.executor.TaskArrayExecutor
 import nextflow.file.FileHelper
 import nextflow.util.CacheHelper
 import nextflow.util.Escape
+import nextflow.script.params.FileInParam
 /**
  * Task monitor that batches tasks and submits them as job arrays
  * to an underlying task monitor.
@@ -177,6 +178,12 @@ class TaskArrayCollector {
         taskArray.config.context = taskArray.context
         taskArray.config.process = taskArray.processor.name
         taskArray.config.executor = taskArray.processor.executor.name
+
+        // add tasks input files to taskArray
+        for ( final task : tasks )
+            if ( task.getInputFiles() != null )
+                for ( final fileHolders : task.getInputFiles().values() )
+                    taskArray.setInput(new FileInParam(processor.config), fileHolders)
 
         return taskArray
     }
